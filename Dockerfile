@@ -8,12 +8,12 @@ COPY . .
 # Construye el proyecto y genera el archivo JAR
 RUN mvn clean package -DskipTests
 
-# Usa una imagen base de Java para ejecutar el JAR
-FROM openjdk:8-jdk-alpine
+# Usa una imagen base ligera para ejecutar el JAR
+FROM eclipse-temurin:8-jre-alpine
 WORKDIR /app
 
 # Copia el archivo JAR generado desde la etapa de construcción
 COPY --from=build /app/target/*.jar app.jar
 
-# Comando para ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Comando para ejecutar la aplicación con límites de memoria
+ENTRYPOINT ["java", "-Xms128m", "-Xmx256m", "-XX:+UseG1GC", "-jar", "app.jar"]
