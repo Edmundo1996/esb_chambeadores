@@ -1,0 +1,9 @@
+server:
+  port: ${PORT:8080} # Usa el puerto proporcionado por Railway o 8080 como predeterminado
+
+spring:
+  application:
+    name: esb-service
+
+jwt:
+  secret: "utd1234" # Secreto del JWT mantenido localmente
