@@ -7,7 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.support.ReactorClientHttpConnector;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import io.netty.handler.ssl.SslContextBuilder;
+
+import javax.net.ssl.SSLException;
 
 import com.utd.ti.soa.esb_service.model.Client;
 import com.utd.ti.soa.esb_service.model.User;
@@ -19,7 +24,7 @@ import com.utd.ti.soa.esb_service.utils.Auth;
 @RequestMapping("/esb")
 public class ESBController {
 
-    private final WebClient webClient = WebClient.create();
+    private final WebClient webClient;
     private final Auth auth = new Auth();
 
     // Variables de entorno para las URLs de los servicios
@@ -34,6 +39,22 @@ public class ESBController {
 
     @Value("${DISCOUNTS_SERVICE_URL}")
     private String discountsServiceUrl;
+
+    // Constructor para inicializar el WebClient con soporte HTTPS
+    public ESBController() throws SSLException {
+        HttpClient httpClient = HttpClient.create()
+            .secure(sslContextSpec -> {
+                try {
+                    sslContextSpec.sslContext(SslContextBuilder.forClient().build());
+                } catch (SSLException e) {
+                    throw new RuntimeException("Error configurando SSL", e);
+                }
+            });
+
+        this.webClient = WebClient.builder()
+            .clientConnector(new ReactorClientHttpConnector(httpClient))
+            .build();
+    }
 
     // ========================= MÉTODOS AUXILIARES =========================
 

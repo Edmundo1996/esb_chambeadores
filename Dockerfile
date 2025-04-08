@@ -15,5 +15,8 @@ WORKDIR /app
 # Copia el archivo JAR generado desde la etapa de construcción
 COPY --from=build /app/target/*.jar app.jar
 
+# Exponer el puerto en el que corre la aplicación
+EXPOSE 8080
+
 # Comando para ejecutar la aplicación con límites de memoria
 ENTRYPOINT ["java", "-Xms128m", "-Xmx256m", "-XX:+UseG1GC", "-jar", "app.jar"]
