@@ -36,15 +36,15 @@ public class ESBController {
     // ========================= USUARIOS =========================
 
     @PostMapping("/user/login")
-    public ResponseEntity loginUser(@RequestBody User user) {
-        String response = webClient.post()
+    public Mono<ResponseEntity<String>> loginUser(@RequestBody User user) {
+        return webClient.post()
             .uri(usersServiceUrl + "/app/users/login")
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .body(BodyInserters.fromValue(user))
             .retrieve()
             .bodyToMono(String.class)
-            .block();
-        return ResponseEntity.ok(response);
+            .map(response -> ResponseEntity.ok(response))
+            .onErrorResume(e -> Mono.just(ResponseEntity.status(500).body("Error interno: " + e.getMessage())));
     }
 
     @PostMapping("/user")
